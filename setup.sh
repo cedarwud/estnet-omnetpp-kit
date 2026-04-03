@@ -33,6 +33,7 @@ prerequisite_packages() {
     cat <<'EOF'
 build-essential
 cmake
+clang
 pkg-config
 python3
 python-is-python3
@@ -53,11 +54,13 @@ EOF
 xcursor-themes
 libgl1-mesa-dev
 libglu1-mesa-dev
+freeglut3-dev
 libxrandr-dev
 libxinerama-dev
 libxcursor-dev
 libxi-dev
 libxmu-dev
+mesa-utils
 libjpeg-dev
 libpng-dev
 libtiff-dev

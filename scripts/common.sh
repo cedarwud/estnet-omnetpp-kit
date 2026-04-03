@@ -139,14 +139,17 @@ handle_unexpected_error() {
 
 command_version_line() {
     local cmd="$1"
+    local output=""
     case "${cmd}" in
         java|javac)
-            "${cmd}" -version 2>&1 | head -n1
+            output="$("${cmd}" -version 2>&1 || true)"
             ;;
         *)
-            "${cmd}" --version 2>&1 | head -n1
+            output="$("${cmd}" --version 2>&1 || true)"
             ;;
     esac
+
+    printf "%s\n" "${output%%$'\n'*}"
 }
 
 is_wsl() {

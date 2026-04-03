@@ -186,6 +186,60 @@ linux_distro_codename() {
     linux_os_release_value "UBUNTU_CODENAME"
 }
 
+package_exists_in_apt_cache() {
+    local pkg="$1"
+    command -v apt-cache >/dev/null 2>&1 && apt-cache show "${pkg}" >/dev/null 2>&1
+}
+
+first_available_apt_package() {
+    local pkg=""
+    for pkg in "$@"; do
+        if package_exists_in_apt_cache "${pkg}"; then
+            printf "%s\n" "${pkg}"
+            return 0
+        fi
+    done
+    return 1
+}
+
+select_webkit_runtime_package() {
+    local distro version
+    distro="$(linux_distro_id || true)"
+    version="$(linux_distro_version_id || true)"
+
+    if [[ "${distro}" == "ubuntu" ]]; then
+        case "${version}" in
+            24.*|25.*|26.*)
+                first_available_apt_package "libwebkit2gtk-4.1-0" "libwebkit2gtk-4.0-37" && return 0
+                ;;
+            20.*|22.*)
+                first_available_apt_package "libwebkit2gtk-4.0-37" "libwebkit2gtk-4.1-0" && return 0
+                ;;
+        esac
+    fi
+
+    first_available_apt_package "libwebkit2gtk-4.1-0" "libwebkit2gtk-4.0-37"
+}
+
+select_freetype_dev_package() {
+    local distro version
+    distro="$(linux_distro_id || true)"
+    version="$(linux_distro_version_id || true)"
+
+    if [[ "${distro}" == "ubuntu" ]]; then
+        case "${version}" in
+            24.*|25.*|26.*)
+                first_available_apt_package "libfreetype-dev" "libfreetype6-dev" && return 0
+                ;;
+            20.*|22.*)
+                first_available_apt_package "libfreetype6-dev" "libfreetype-dev" && return 0
+                ;;
+        esac
+    fi
+
+    first_available_apt_package "libfreetype6-dev" "libfreetype-dev"
+}
+
 detect_virtualization() {
     if command -v systemd-detect-virt >/dev/null 2>&1; then
         systemd-detect-virt 2>/dev/null || true

@@ -44,6 +44,10 @@ if [[ ! -d "${OPENSCENEGRAPH_SOURCE_DIR}/.git" ]]; then
 fi
 
 declare -a MISSING_APT_PACKAGES=()
+STAGE20_FREETYPE_PKG="$(select_freetype_dev_package || true)"
+if [[ -z "${STAGE20_FREETYPE_PKG}" ]]; then
+    stage_mark_failure "No supported FreeType development package detected in apt cache (expected libfreetype6-dev or libfreetype-dev)."
+fi
 declare -a STAGE20_APT_PACKAGES=(
     build-essential
     cmake
@@ -58,12 +62,13 @@ declare -a STAGE20_APT_PACKAGES=(
     libjpeg-dev
     libpng-dev
     libtiff-dev
-    libfreetype6-dev
     zlib1g-dev
     libfontconfig1-dev
 )
+STAGE20_APT_PACKAGES+=("${STAGE20_FREETYPE_PKG}")
 
 set_checkpoint "preflight" "checking apt prerequisites for OpenSceneGraph build"
+append_summary "apt_install.freetype_package=${STAGE20_FREETYPE_PKG}"
 
 for pkg in "${STAGE20_APT_PACKAGES[@]}"; do
     check_package "${pkg}"

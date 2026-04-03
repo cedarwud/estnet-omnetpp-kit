@@ -29,46 +29,6 @@ MODE="ready"
 SKIP_APT=0
 PRINT_APT_COMMAND=0
 
-package_exists_in_apt_cache() {
-    local pkg="$1"
-    apt-cache show "${pkg}" >/dev/null 2>&1
-}
-
-select_webkit_runtime_package() {
-    local distro version
-    distro="$(linux_distro_id || true)"
-    version="$(linux_distro_version_id || true)"
-
-    if [[ "${distro}" == "ubuntu" ]]; then
-        case "${version}" in
-            24.*|25.*|26.*)
-                if package_exists_in_apt_cache "libwebkit2gtk-4.1-0"; then
-                    printf "libwebkit2gtk-4.1-0\n"
-                    return 0
-                fi
-                ;;
-            20.*|22.*)
-                if package_exists_in_apt_cache "libwebkit2gtk-4.0-37"; then
-                    printf "libwebkit2gtk-4.0-37\n"
-                    return 0
-                fi
-                ;;
-        esac
-    fi
-
-    if package_exists_in_apt_cache "libwebkit2gtk-4.1-0"; then
-        printf "libwebkit2gtk-4.1-0\n"
-        return 0
-    fi
-
-    if package_exists_in_apt_cache "libwebkit2gtk-4.0-37"; then
-        printf "libwebkit2gtk-4.0-37\n"
-        return 0
-    fi
-
-    return 1
-}
-
 prerequisite_packages() {
     cat <<'EOF'
 build-essential
@@ -101,7 +61,9 @@ libxmu-dev
 libjpeg-dev
 libpng-dev
 libtiff-dev
-libfreetype6-dev
+EOF
+    select_freetype_dev_package || true
+    cat <<'EOF'
 zlib1g-dev
 libfontconfig1-dev
 libcurl4-openssl-dev
@@ -177,6 +139,9 @@ install_prerequisites() {
 
     if ! printf '%s\n' "${packages[@]}" | grep -q '^libwebkit2gtk-'; then
         printf "[setup] warning: no supported WebKitGTK runtime package detected in apt cache; IDE embedded browser features may be unavailable\n" >&2
+    fi
+    if ! printf '%s\n' "${packages[@]}" | grep -Eq '^libfreetype(6)?-dev$'; then
+        printf "[setup] warning: no supported FreeType development package detected in apt cache; OpenSceneGraph build may fail later\n" >&2
     fi
 
     printf "[setup] installing Ubuntu prerequisites via apt\n"

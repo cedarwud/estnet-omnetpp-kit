@@ -24,7 +24,7 @@ sudo apt-get install -y \
   xcursor-themes \
   libgl1-mesa-dev libglu1-mesa-dev \
   libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libxmu-dev \
-  libjpeg-dev libpng-dev libtiff-dev libfreetype6-dev zlib1g-dev libfontconfig1-dev \
+  libjpeg-dev libpng-dev libtiff-dev <freetype-dev-package> zlib1g-dev libfontconfig1-dev \
   libcurl4-openssl-dev libgdal-dev libgeos-dev libsqlite3-dev
 ```
 
@@ -32,6 +32,8 @@ sudo apt-get install -y \
 
 - Ubuntu 20.04 / 22.04 的 WebKitGTK runtime package 通常是 `libwebkit2gtk-4.0-37`
 - Ubuntu 24.04 通常改成 `libwebkit2gtk-4.1-0`
+- Ubuntu 20.04 / 22.04 的 FreeType development package 通常是 `libfreetype6-dev`
+- Ubuntu 24.04 可能改成 `libfreetype-dev`
 - `./setup.sh` 會依 apt cache 自動選擇；若你手動安裝 prerequisite packages，請先用 `./setup.sh --print-apt-command` 取得當前環境正確的套件名稱
 
 ## Primary Entrypoints

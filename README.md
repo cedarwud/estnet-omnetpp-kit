@@ -207,9 +207,10 @@ cd /path/to/estnet-omnetpp-kit
 - bison / flex
 - maven / swig
 - Qt 開發套件
-- `libwebkit2gtk-4.0-37`
+- 版本相依的 WebKitGTK runtime package
 - `xcursor-themes`
 - OpenGL / X11 開發套件
+- 版本相依的 FreeType development package
 - curl / gdal / geos / sqlite3 開發套件
 
 補充：
@@ -218,6 +219,9 @@ cd /path/to/estnet-omnetpp-kit
 - 在 Ubuntu 20.04 / 22.04 常見套件名是 `libwebkit2gtk-4.0-37`
 - 在 Ubuntu 24.04 常見套件名改為 `libwebkit2gtk-4.1-0`
 - `setup.sh` 現在會依目前 apt 可用套件自動選擇，不再把 24.04 硬套成 `4.0-37`
+- Ubuntu 20.04 / 22.04 常見 FreeType development package 是 `libfreetype6-dev`
+- Ubuntu 24.04 常見 FreeType development package 可能改成 `libfreetype-dev`
+- `setup.sh` 與 Stage 20 現在會依目前 apt 可用套件自動選擇，不再把 FreeType package 名稱寫死
 - 它不是 simulation / OSG / osgEarth build 的核心依賴，而是 IDE 內建 Browser widget 的 optional runtime dependency；缺少時主要影響 welcome/documentation/browser 類頁面
 - `xcursor-themes` 是 Eclipse/SWT 在 Linux/GTK 下建立 cursor 時的 runtime dependency；缺少時可能在 workspace chooser 就直接報 `SWTError: No more handles`
 - `python-is-python3` 是為了兼容 OMNeT++ / INET 仍使用 `#!/usr/bin/env python` 的上游輔助腳本；只靠 shell alias 不可靠

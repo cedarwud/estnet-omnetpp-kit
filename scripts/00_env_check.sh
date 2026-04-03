@@ -81,31 +81,48 @@ check_pkg_config_module() {
 
 check_first_available_webkit_runtime_package() {
     local pkg=""
-    local -a candidates=("libwebkit2gtk-4.1-0" "libwebkit2gtk-4.0-37")
+    pkg="$(select_webkit_runtime_package || true)"
 
-    for pkg in "${candidates[@]}"; do
-        if dpkg -s "${pkg}" >/dev/null 2>&1; then
-            log INFO "Package present: ${pkg}"
-            append_summary "package.${pkg}=present"
-            append_summary "webkit_runtime_package=${pkg}"
-            return 0
-        fi
-    done
+    if [[ -n "${pkg}" ]] && dpkg -s "${pkg}" >/dev/null 2>&1; then
+        log INFO "Package present: ${pkg}"
+        append_summary "package.${pkg}=present"
+        append_summary "webkit_runtime_package=${pkg}"
+        return 0
+    fi
 
-    if command -v apt-cache >/dev/null 2>&1; then
-        for pkg in "${candidates[@]}"; do
-            if apt-cache show "${pkg}" >/dev/null 2>&1; then
-                log WARN "Package missing: ${pkg}"
-                append_summary "package.${pkg}=missing"
-                append_summary "webkit_runtime_package=${pkg}"
-                add_missing_package "${pkg}"
-                return 0
-            fi
-        done
+    if [[ -n "${pkg}" ]]; then
+        log WARN "Package missing: ${pkg}"
+        append_summary "package.${pkg}=missing"
+        append_summary "webkit_runtime_package=${pkg}"
+        add_missing_package "${pkg}"
+        return 0
     fi
 
     log WARN "No supported WebKitGTK runtime package detected in apt cache; IDE embedded browser features may be unavailable"
     append_summary "webkit_runtime_package=unavailable"
+}
+
+check_first_available_freetype_dev_package() {
+    local pkg=""
+    pkg="$(select_freetype_dev_package || true)"
+
+    if [[ -n "${pkg}" ]] && dpkg -s "${pkg}" >/dev/null 2>&1; then
+        log INFO "Package present: ${pkg}"
+        append_summary "package.${pkg}=present"
+        append_summary "freetype_dev_package=${pkg}"
+        return 0
+    fi
+
+    if [[ -n "${pkg}" ]]; then
+        log WARN "Package missing: ${pkg}"
+        append_summary "package.${pkg}=missing"
+        append_summary "freetype_dev_package=${pkg}"
+        add_missing_package "${pkg}"
+        return 0
+    fi
+
+    log WARN "No supported FreeType development package detected in apt cache; OpenSceneGraph build may fail later"
+    append_summary "freetype_dev_package=unavailable"
 }
 
 set_checkpoint "inspect" "collecting host and dependency information"
@@ -164,6 +181,10 @@ check_dpkg_package "libxinerama-dev"
 check_dpkg_package "libxcursor-dev"
 check_dpkg_package "libxi-dev"
 check_dpkg_package "libxmu-dev"
+check_dpkg_package "libjpeg-dev"
+check_dpkg_package "libpng-dev"
+check_dpkg_package "libtiff-dev"
+check_first_available_freetype_dev_package
 
 check_pkg_config_module "Qt5Core" "qtbase5-dev"
 check_pkg_config_module "Qt5OpenGL" "libqt5opengl5-dev"

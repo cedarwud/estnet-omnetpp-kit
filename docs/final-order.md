@@ -36,6 +36,8 @@ sudo apt-get install -y \
 - Ubuntu 24.04 可能改成 `libfreetype-dev`
 - `./setup.sh` 會依 apt cache 自動選擇；若你手動安裝 prerequisite packages，請先用 `./setup.sh --print-apt-command` 取得當前環境正確的套件名稱
 - `tools/run_stage.sh 90` 會在 `SWIG >= 4` 時自動套用 `scave-plove.i`、`scave.i`、`eventlog.i` 的相容修正，避免較新 Ubuntu/WSL 的 SWIG 解析失敗
+- `tools/run_stage.sh 90` 若偵測到 `Java >= 14`，會優先使用本機已安裝的 `Java 11` 執行 Tycho；若系統沒有 Java 11，請先安裝 `openjdk-11-jdk`
+- `tools/run_stage.sh 90` 也會停用 `p2` mirrors，避免舊 Eclipse repository 在某些環境下命中不穩定鏡像或 packed artifact 流程
 
 ## Primary Entrypoints
 

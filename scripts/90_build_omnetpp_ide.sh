@@ -55,6 +55,50 @@ fi
 
 export PATH="${OMNETPP_DIR}/bin:${PATH}"
 
+java_version_string="$(java -version 2>&1 | sed -n '1s/.*version \"\\([^\"]*\\)\".*/\\1/p' | head -n1)"
+java_major_version="$(printf '%s\n' "${java_version_string}" | awk -F. '{ if ($1 == "1") print $2; else print $1 }')"
+append_summary "java.version=${java_version_string:-unknown}"
+append_summary "java.major=${java_major_version:-unknown}"
+
+select_java11_home() {
+    local candidate=""
+    local -a candidates=(
+        "${JAVA11_HOME:-}"
+        "/usr/lib/jvm/java-11-openjdk-amd64"
+        "/usr/lib/jvm/java-11-openjdk"
+        "/usr/lib/jvm/temurin-11-jdk-amd64"
+        "/usr/lib/jvm/temurin-11-jdk"
+    )
+
+    for candidate in "${candidates[@]}"; do
+        [[ -n "${candidate}" ]] || continue
+        if [[ -x "${candidate}/bin/java" ]] && [[ -x "${candidate}/bin/javac" ]]; then
+            printf "%s\n" "${candidate}"
+            return 0
+        fi
+    done
+
+    return 1
+}
+
+configure_stage90_java_runtime() {
+    local java11_home=""
+
+    if [[ -n "${java_major_version}" ]] && [[ "${java_major_version}" =~ ^[0-9]+$ ]] && (( java_major_version >= 14 )); then
+        java11_home="$(select_java11_home || true)"
+        if [[ -z "${java11_home}" ]]; then
+            stage_mark_failure "Stage 90 detected Java ${java_version_string}, but Tycho/Eclipse 2019-03 packaging needs a Java 11 runtime with unpack200 support. Install openjdk-11-jdk and rerun Stage 90."
+        fi
+
+        export JAVA_HOME="${java11_home}"
+        export PATH="${JAVA_HOME}/bin:${PATH}"
+        append_summary "java.stage90_override=${JAVA_HOME}"
+        log INFO "Stage 90 overriding JAVA_HOME to ${JAVA_HOME} for Tycho compatibility"
+    else
+        append_summary "java.stage90_override=none"
+    fi
+}
+
 swig_version_string="$(swig -version 2>/dev/null | sed -n 's/^SWIG Version //p' | head -n1)"
 swig_major_version="$(printf '%s\n' "${swig_version_string}" | awk -F. '{print $1}')"
 swig_minor_version="$(printf '%s\n' "${swig_version_string}" | awk -F. '{print $2}')"
@@ -194,6 +238,8 @@ if [[ -n "${swig_major_version}" ]] && [[ "${swig_major_version}" =~ ^[0-9]+$ ]]
     patch_swig4_eventlog_intintmap
 fi
 
+configure_stage90_java_runtime
+
 IDE_STAGE_DIR="${OMNETPP_IDE_BUILD_BASE}/${RUN_TS}"
 IDE_WORK_UI_DIR="${IDE_STAGE_DIR}/ui"
 IDE_PRODUCT_DIR="${IDE_WORK_UI_DIR}/releng/org.omnetpp.ide.product/target/products/org.omnetpp.ide.product/linux/gtk/x86_64"
@@ -206,6 +252,7 @@ append_summary "ide_link_path=${IDE_LINK_PATH}"
 append_summary "ide_repo.main=${OMNETPP_IDE_MAIN_REPO_URL}"
 append_summary "ide_repo.update=${OMNETPP_IDE_UPDATE_REPO_URL}"
 append_summary "ide_repo.cdt=${OMNETPP_IDE_CDT_REPO_URL}"
+append_summary "tycho.p2_mirrors=false"
 
 set_checkpoint "ui_libs" "building OMNeT++ IDE native libraries"
 (
@@ -341,6 +388,7 @@ set_checkpoint "tycho_build" "building OMNeT++ IDE product with Maven/Tycho"
     mvn clean verify \
         -Dwhat=omnetpp \
         -DforceContextQualifier="${RUN_TS}" \
+        -Declipse.p2.mirrors=false \
         -Drepo.url="${OMNETPP_IDE_MAIN_REPO_URL}" \
         -Dupdate-repo.url="${OMNETPP_IDE_UPDATE_REPO_URL}" \
         -Dcdt-repo.url="${OMNETPP_IDE_CDT_REPO_URL}"

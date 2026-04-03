@@ -76,6 +76,8 @@
    - 調整 Qt / IDE / Browser / WebKit / OpenGL / GLX 相關依賴
    - 針對 Ubuntu 22.04 / 24.04 調整 apt package 名稱或版本相容性
    - 對 `libwebkit2gtk-*` 這類版本相關套件，不可假設 `20.04/22.04/24.04` 名稱相同
+   - 在 Stage 90 / IDE packaging 時，若系統 Java 太新，優先切到 Java 11
+   - 在 Stage 90 / IDE packaging 時，若舊 Eclipse repository 命中不穩定 mirror 或 packed artifact / unpack200 問題，優先停用 p2 mirrors
 6. 若失敗，先分類問題屬於哪一類：
    - package/dependency naming issue
    - compiler/cmake/build issue
@@ -106,6 +108,12 @@
   - `distro_codename`
   - `virtualization`
   作為條件分支
+- 若是 Stage 90 / Eclipse Tycho packaging 問題：
+  - 對 `SWIG >= 4`，優先把修正限制在 `scripts/90_build_omnetpp_ide.sh`
+  - 不要把 SWIG 4.x workaround 擴散到其他 stage
+  - 對 `Java >= 14`，優先使用本機已安裝的 `Java 11`
+  - 若 Java 11 不存在，再要求安裝 `openjdk-11-jdk`
+  - 優先停用 `p2 mirrors`，不要先改全域 Maven 設定
 - 不要把某個新環境的 workaround 直接套用到所有環境
 - 不要把 runtime workaround 誤寫成 build requirement
 - 不要刪除 WSL 既有 software GL 預設，除非有充分證據

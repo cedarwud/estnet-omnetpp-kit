@@ -143,18 +143,6 @@ PY
 
 patch_swig4_scave_entryvector() {
     local target_file="${OMNETPP_DIR}/ui/org.omnetpp.ide.nativelibs/scave.i"
-    local marker_block='namespace omnetpp { namespace scave {
-
-%template(EntryVector) ::std::vector<omnetpp::scave::OutputVectorEntry>;
-
-%ignore IndexedVectorFileWriterNode;'
-    local replacement_block='namespace std {
-%template(EntryVector) ::std::vector<omnetpp::scave::OutputVectorEntry>;
-}
-
-namespace omnetpp { namespace scave {
-
-%ignore IndexedVectorFileWriterNode;'
 
     if [[ ! -f "${target_file}" ]]; then
         stage_mark_failure "Expected SWIG interface file is missing: ${target_file}"

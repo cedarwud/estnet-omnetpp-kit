@@ -222,6 +222,7 @@ cd /path/to/estnet-omnetpp-kit
 - Ubuntu 20.04 / 22.04 常見 FreeType development package 是 `libfreetype6-dev`
 - Ubuntu 24.04 常見 FreeType development package 可能改成 `libfreetype-dev`
 - `setup.sh` 與 Stage 20 現在會依目前 apt 可用套件自動選擇，不再把 FreeType package 名稱寫死
+- Stage 90 會在 `SWIG >= 4` 時自動套用 OMNeT++ 5.5.1 UI native libs 的相容修正，避開 `scave-plove.i` 內已淘汰的 `specialize_std_map_on_both(...)` 巨集在較新 Ubuntu/WSL 上造成的語法錯誤
 - 它不是 simulation / OSG / osgEarth build 的核心依賴，而是 IDE 內建 Browser widget 的 optional runtime dependency；缺少時主要影響 welcome/documentation/browser 類頁面
 - `xcursor-themes` 是 Eclipse/SWT 在 Linux/GTK 下建立 cursor 時的 runtime dependency；缺少時可能在 workspace chooser 就直接報 `SWTError: No more handles`
 - `python-is-python3` 是為了兼容 OMNeT++ / INET 仍使用 `#!/usr/bin/env python` 的上游輔助腳本；只靠 shell alias 不可靠

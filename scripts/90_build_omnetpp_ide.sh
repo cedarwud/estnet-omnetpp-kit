@@ -55,6 +55,53 @@ fi
 
 export PATH="${OMNETPP_DIR}/bin:${PATH}"
 
+swig_version_string="$(swig -version 2>/dev/null | sed -n 's/^SWIG Version //p' | head -n1)"
+swig_major_version="$(printf '%s\n' "${swig_version_string}" | awk -F. '{print $1}')"
+swig_minor_version="$(printf '%s\n' "${swig_version_string}" | awk -F. '{print $2}')"
+append_summary "swig.version=${swig_version_string:-unknown}"
+append_summary "swig.major=${swig_major_version:-unknown}"
+append_summary "swig.minor=${swig_minor_version:-unknown}"
+
+patch_swig4_scave_plove() {
+    local target_file="${OMNETPP_DIR}/ui/org.omnetpp.ide.nativelibs/scave-plove.i"
+    local marker='specialize_std_map_on_both(std::string,,,,std::string,,,);'
+    local replacement='   // SWIG 4.x: specialize_std_map_on_both is deprecated and may fail to parse on newer distros.'
+
+    if [[ ! -f "${target_file}" ]]; then
+        stage_mark_failure "Expected SWIG interface file is missing: ${target_file}"
+    fi
+
+    if grep -Fq "${replacement}" "${target_file}"; then
+        append_summary "swig_patch.scave_plove=already_applied"
+        return 0
+    fi
+
+    if ! grep -Fq "${marker}" "${target_file}"; then
+        append_summary "swig_patch.scave_plove=marker_missing"
+        stage_mark_failure "Could not find expected deprecated SWIG std::map specialization marker in ${target_file}"
+    fi
+
+    python3 - "${target_file}" <<'PY'
+import pathlib
+import sys
+
+path = pathlib.Path(sys.argv[1])
+old = "   specialize_std_map_on_both(std::string,,,,std::string,,,);\n"
+new = "   // SWIG 4.x: specialize_std_map_on_both is deprecated and may fail to parse on newer distros.\n"
+text = path.read_text(encoding="utf-8")
+if old not in text:
+    raise SystemExit("expected_deprecated_macro_not_found")
+path.write_text(text.replace(old, new, 1), encoding="utf-8")
+PY
+
+    append_summary "swig_patch.scave_plove=applied"
+}
+
+if [[ -n "${swig_major_version}" ]] && [[ "${swig_major_version}" =~ ^[0-9]+$ ]] && (( swig_major_version >= 4 )); then
+    set_checkpoint "swig_compat" "patching deprecated SWIG std::map macro for SWIG 4.x"
+    patch_swig4_scave_plove
+fi
+
 IDE_STAGE_DIR="${OMNETPP_IDE_BUILD_BASE}/${RUN_TS}"
 IDE_WORK_UI_DIR="${IDE_STAGE_DIR}/ui"
 IDE_PRODUCT_DIR="${IDE_WORK_UI_DIR}/releng/org.omnetpp.ide.product/target/products/org.omnetpp.ide.product/linux/gtk/x86_64"

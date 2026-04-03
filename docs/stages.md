@@ -63,7 +63,7 @@ Ubuntu 版本資訊目前先用於記錄與顯示，暫時不依 `20.04 / 22.04 
 | 60 | `scripts/60_clone_estnet.sh` | clone estnet 與 estnet-template | 已驗證成功 | 兩個 repo 取得完成且 ref 已記錄 |
 | 70 | `scripts/70_activate_env.sh` | 產生統一環境啟動腳本 | 已驗證成功 | 生成 `${PROJECT_ROOT}/activate_env.sh`，驗證可 source，並正確設定 OSG/osgEarth runtime path |
 | 80 | `scripts/80_smoke_test.sh` | 最小 smoke test 與 WSL runtime 分類 | 已驗證成功 | setenv/source/path/binary/library 驗證完成；GUI 項目標記 skipped 或 runtime limitation with reason |
-| 90 | `scripts/90_build_omnetpp_ide.sh` | build 開源版 OMNeT++ IDE payload 並掛回 `omnetpp-5.5.1/ide` | 已驗證成功 | Tycho product build 完成，`${PROJECT_ROOT}/omnetpp-5.5.1/ide/omnetpp` 與 `configuration/` 存在，launcher probe 不再回報 `IDE is not installed` |
+| 90 | `scripts/90_build_omnetpp_ide.sh` | build 開源版 OMNeT++ IDE payload 並掛回 `omnetpp-5.5.1/ide` | 已驗證成功 | Tycho product build 完成，`${PROJECT_ROOT}/omnetpp-5.5.1/ide/omnetpp` 與 `configuration/` 存在，launcher probe 不再回報 `IDE is not installed`；在 `SWIG >= 4` 時會自動修正 `scave-plove.i` 的 deprecated `std::map` macro |
 
 ## Current Execution Order
 

@@ -19,6 +19,7 @@ cd /path/to/estnet-omnetpp-kit
 - `./setup.sh` 會先偵測環境，再在 Ubuntu/WSL 內自動執行 `sudo apt-get install`
 - `./run.sh` 會先偵測環境，再自動決定預設 GL 模式
 - 若只想看目前環境判斷結果，可執行 `./detect_env.sh`
+- 若目前 session 無法互動輸入 `sudo` 密碼，可先執行 `./setup.sh --print-apt-command`，手動安裝 prerequisite packages 後再執行 `./setup.sh --skip-apt`
 
 若要把這份 portable kit 交給新環境中的 Codex agent，建議直接使用這句：
 
@@ -44,6 +45,7 @@ cd /path/to/estnet-omnetpp-kit
     - `./setup.sh full`
     - `./setup.sh ide`
     - `./setup.sh --skip-apt`
+    - `./setup.sh --print-apt-command`
     - `./setup.sh --force`
 
 - `./run.sh`
@@ -200,6 +202,7 @@ cd /path/to/estnet-omnetpp-kit
 目前包含：
 
 - build-essential / cmake / pkg-config
+- python3 / python-is-python3
 - default-jre / default-jdk
 - bison / flex
 - maven / swig
@@ -212,9 +215,24 @@ cd /path/to/estnet-omnetpp-kit
 補充：
 
 - `libwebkit2gtk-4.0-37` 是 IDE 內建 Browser widget 的 runtime dependency
-- 它不是 simulation / OSG / osgEarth build 的核心依賴，但加進 setup 比較穩
+- 在 Ubuntu 20.04 / 22.04 常見套件名是 `libwebkit2gtk-4.0-37`
+- 在 Ubuntu 24.04 常見套件名改為 `libwebkit2gtk-4.1-0`
+- `setup.sh` 現在會依目前 apt 可用套件自動選擇，不再把 24.04 硬套成 `4.0-37`
+- 它不是 simulation / OSG / osgEarth build 的核心依賴，而是 IDE 內建 Browser widget 的 optional runtime dependency；缺少時主要影響 welcome/documentation/browser 類頁面
 - `xcursor-themes` 是 Eclipse/SWT 在 Linux/GTK 下建立 cursor 時的 runtime dependency；缺少時可能在 workspace chooser 就直接報 `SWTError: No more handles`
+- `python-is-python3` 是為了兼容 OMNeT++ / INET 仍使用 `#!/usr/bin/env python` 的上游輔助腳本；只靠 shell alias 不可靠
 - 若你已自行準備好系統套件，可用 `./setup.sh --skip-apt`
+- 若你處在 agent/non-interactive session，無法由 `setup.sh` 直接執行 `sudo apt-get`，可先用：
+
+```bash
+./setup.sh --print-apt-command
+```
+
+複製輸出的安裝命令到可輸入 sudo 密碼的 shell 中手動執行，之後再回來跑：
+
+```bash
+./setup.sh --skip-apt
+```
 
 ## Upstream Scripts After Setup
 

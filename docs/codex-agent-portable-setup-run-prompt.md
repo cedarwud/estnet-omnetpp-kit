@@ -33,6 +33,10 @@
   - `./detect_env.sh`
   - `./setup.sh`
   - `./run.sh`
+- 若 `./setup.sh` 因 `sudo` / 非互動 session 無法安裝 prerequisite packages，不可卡住或反覆重試；必須改走：
+  - `./setup.sh --print-apt-command`
+  - 請使用者在可輸入 sudo 密碼的 shell 中手動執行該命令
+  - 然後再繼續 `./setup.sh --skip-apt`
 - 若 setup 失敗，只重跑對應 stage：
   - `./tools/run_stage.sh --list`
   - `./tools/run_stage.sh --force <stage>`
@@ -61,22 +65,27 @@
 
 1. 先跑 `./detect_env.sh`，確認現有腳本對這個環境的判斷是否合理
 2. 再跑 `./setup.sh`
-3. setup 成功後再跑 `./run.sh`
-4. 若 run 失敗，再判斷是否需要：
+3. 若 `./setup.sh` 回報需要 sudo 但目前 session 無法互動輸入密碼：
+   - 先跑 `./setup.sh --print-apt-command`
+   - 要求使用者手動執行輸出的 `sudo apt-get` 命令
+   - 再跑 `./setup.sh --skip-apt`
+4. setup 成功後再跑 `./run.sh`
+5. 若 run 失敗，再判斷是否需要：
    - 保持 native GL
    - 改用 software GL
    - 調整 Qt / IDE / Browser / WebKit / OpenGL / GLX 相關依賴
    - 針對 Ubuntu 22.04 / 24.04 調整 apt package 名稱或版本相容性
-5. 若失敗，先分類問題屬於哪一類：
+   - 對 `libwebkit2gtk-*` 這類版本相關套件，不可假設 `20.04/22.04/24.04` 名稱相同
+6. 若失敗，先分類問題屬於哪一類：
    - package/dependency naming issue
    - compiler/cmake/build issue
    - Qt/IDE/browser issue
    - OpenGL/GLX/runtime issue
    - osgEarth/OSG runtime asset/path issue
    - environment detection issue
-6. 只有在確認問題是該環境特有時，才新增 version/environment-specific 分支
-7. 修正後只重跑失敗的 stage，不要整套重跑
-8. 每次修正後都要驗證：
+7. 只有在確認問題是該環境特有時，才新增 version/environment-specific 分支
+8. 修正後只重跑失敗的 stage，不要整套重跑
+9. 每次修正後都要驗證：
    - 新環境是否恢復正常
    - WSL 既有邏輯是否仍保留
    - 預設行為是否仍符合：

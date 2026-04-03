@@ -42,6 +42,7 @@
 
 - `setup.sh`
   - 在 Ubuntu/WSL 內自動安裝 prerequisite packages
+  - 若目前 session 無法互動輸入 sudo 密碼，應先用 `./setup.sh --print-apt-command` 取得手動安裝命令，再以 `./setup.sh --skip-apt` 繼續 stage flow
 - `run.sh`
   - 在 `WSL` 下預設使用 software GL
   - 在非 `WSL` 環境下預設使用 native GL

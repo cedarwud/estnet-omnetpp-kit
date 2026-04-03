@@ -8,6 +8,7 @@
 
 `./setup.sh` 現在預設會先在 Ubuntu/WSL2 自動安裝必要系統套件。
 若你想手動管理系統套件，再改用 `./setup.sh --skip-apt`。
+若目前 session 無法互動輸入 sudo 密碼，先執行 `./setup.sh --print-apt-command`，手動安裝 prerequisite packages 後再執行 `./setup.sh --skip-apt`。
 
 自動安裝清單如下：
 
@@ -15,17 +16,23 @@
 sudo apt-get update
 sudo apt-get install -y \
   build-essential cmake pkg-config \
+  python3 python-is-python3 \
   default-jre default-jdk \
   bison flex \
   maven swig \
   qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools libqt5opengl5-dev \
-  libwebkit2gtk-4.0-37 \
   xcursor-themes \
   libgl1-mesa-dev libglu1-mesa-dev \
   libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libxmu-dev \
   libjpeg-dev libpng-dev libtiff-dev libfreetype6-dev zlib1g-dev libfontconfig1-dev \
   libcurl4-openssl-dev libgdal-dev libgeos-dev libsqlite3-dev
 ```
+
+補充：
+
+- Ubuntu 20.04 / 22.04 的 WebKitGTK runtime package 通常是 `libwebkit2gtk-4.0-37`
+- Ubuntu 24.04 通常改成 `libwebkit2gtk-4.1-0`
+- `./setup.sh` 會依 apt cache 自動選擇；若你手動安裝 prerequisite packages，請先用 `./setup.sh --print-apt-command` 取得當前環境正確的套件名稱
 
 ## Primary Entrypoints
 
@@ -36,6 +43,7 @@ cd /path/to/estnet-omnetpp-kit
 
 ./setup.sh              # 預設等同 ready，一次性建置到可直接跑 omnetpp
 ./setup.sh --skip-apt   # 已自行安裝 prerequisite packages 時使用
+./setup.sh --print-apt-command
 ./run.sh                # 之後反覆直接啟動 omnetpp
 
 ./setup.sh baseline     # 只做 baseline，不建 IDE payload

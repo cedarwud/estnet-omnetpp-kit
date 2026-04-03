@@ -79,6 +79,35 @@ check_pkg_config_module() {
     fi
 }
 
+check_first_available_webkit_runtime_package() {
+    local pkg=""
+    local -a candidates=("libwebkit2gtk-4.1-0" "libwebkit2gtk-4.0-37")
+
+    for pkg in "${candidates[@]}"; do
+        if dpkg -s "${pkg}" >/dev/null 2>&1; then
+            log INFO "Package present: ${pkg}"
+            append_summary "package.${pkg}=present"
+            append_summary "webkit_runtime_package=${pkg}"
+            return 0
+        fi
+    done
+
+    if command -v apt-cache >/dev/null 2>&1; then
+        for pkg in "${candidates[@]}"; do
+            if apt-cache show "${pkg}" >/dev/null 2>&1; then
+                log WARN "Package missing: ${pkg}"
+                append_summary "package.${pkg}=missing"
+                append_summary "webkit_runtime_package=${pkg}"
+                add_missing_package "${pkg}"
+                return 0
+            fi
+        done
+    fi
+
+    log WARN "No supported WebKitGTK runtime package detected in apt cache; IDE embedded browser features may be unavailable"
+    append_summary "webkit_runtime_package=unavailable"
+}
+
 set_checkpoint "inspect" "collecting host and dependency information"
 
 if [[ -f /etc/os-release ]]; then
@@ -124,7 +153,7 @@ check_dpkg_package "qtchooser"
 check_dpkg_package "qt5-qmake"
 check_dpkg_package "qtbase5-dev-tools"
 check_dpkg_package "libqt5opengl5-dev"
-check_dpkg_package "libwebkit2gtk-4.0-37"
+check_first_available_webkit_runtime_package
 check_dpkg_package "xcursor-themes"
 check_dpkg_package "libgl1-mesa-dev"
 check_dpkg_package "libglu1-mesa-dev"

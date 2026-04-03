@@ -21,17 +21,6 @@ cd /path/to/estnet-omnetpp-kit
 - 若只想看目前環境判斷結果，可執行 `./detect_env.sh`
 - 若目前 session 無法互動輸入 `sudo` 密碼，可先執行 `./setup.sh --print-apt-command`，手動安裝 prerequisite packages 後再執行 `./setup.sh --skip-apt`
 
-若要把這份 portable kit 交給新環境中的 Codex agent，建議直接使用這句：
-
-```text
-請先閱讀 ./docs/codex-agent-portable-setup-run-prompt.md，然後完全依照該文件執行：
-1. 偵測環境
-2. 執行 ./setup.sh
-3. 執行 ./run.sh
-4. 若失敗，先判斷 root cause 是否為該環境特有，再做最小的 environment-scoped 修正
-5. 不可破壞既有 WSL2 baseline
-```
-
 ## Script Reference
 
 ### Main Entrypoints
@@ -228,8 +217,9 @@ cd /path/to/estnet-omnetpp-kit
 - 它不是 simulation / OSG / osgEarth build 的核心依賴，而是 IDE 內建 Browser widget 的 optional runtime dependency；缺少時主要影響 welcome/documentation/browser 類頁面
 - `xcursor-themes` 是 Eclipse/SWT 在 Linux/GTK 下建立 cursor 時的 runtime dependency；缺少時可能在 workspace chooser 就直接報 `SWTError: No more handles`
 - `python-is-python3` 是為了兼容 OMNeT++ / INET 仍使用 `#!/usr/bin/env python` 的上游輔助腳本；只靠 shell alias 不可靠
+- 若系統暫時沒有 `python` alias，Stage 50 會建立 project-local fallback：`third_party/install/toolchain-shims/bin/python -> python3`
 - 若你已自行準備好系統套件，可用 `./setup.sh --skip-apt`
-- 若你處在 agent/non-interactive session，無法由 `setup.sh` 直接執行 `sudo apt-get`，可先用：
+- 若你處在 non-interactive session，無法由 `setup.sh` 直接執行 `sudo apt-get`，可先用：
 
 ```bash
 ./setup.sh --print-apt-command

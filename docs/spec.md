@@ -48,7 +48,7 @@
 
 - `setup.sh`
   - 在 Ubuntu/WSL 內自動安裝 prerequisite packages
-  - 若處於 non-interactive/agent session 而無法輸入 sudo 密碼，應先改用 `./setup.sh --print-apt-command`，待使用者手動安裝 prerequisite packages 後再執行 `./setup.sh --skip-apt`
+  - 若處於 non-interactive session 而無法輸入 sudo 密碼，應先改用 `./setup.sh --print-apt-command`，待使用者手動安裝 prerequisite packages 後再執行 `./setup.sh --skip-apt`
 - `run.sh`
   - 在 `WSL` 下預設使用 software GL
   - 在非 `WSL` 環境下預設使用 native GL

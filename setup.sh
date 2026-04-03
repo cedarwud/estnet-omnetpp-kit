@@ -161,7 +161,7 @@ install_prerequisites() {
     fi
 
     printf "[setup] sudo privileges are required to install Ubuntu prerequisites.\n" >&2
-    printf "[setup] In non-interactive or agent-driven sessions, install them manually with:\n\n" >&2
+    printf "[setup] In non-interactive sessions, install them manually with:\n\n" >&2
     print_apt_install_command >&2
     printf "\n[setup] After that, continue with:\n" >&2
     printf "  ./setup.sh --skip-apt"

@@ -116,17 +116,13 @@ namespace omnetpp { namespace scave {
         stage_mark_failure "Expected SWIG interface file is missing: ${target_file}"
     fi
 
-    if grep -Fq 'namespace std {' "${target_file}" && grep -Fq '%template(EntryVector) ::std::vector<omnetpp::scave::OutputVectorEntry>;' "${target_file}"; then
-        append_summary "swig_patch.scave_entryvector=already_applied"
-        return 0
-    fi
-
     python3 - "${target_file}" <<'PY'
 import pathlib
 import sys
 
 path = pathlib.Path(sys.argv[1])
 text = path.read_text(encoding="utf-8")
+modified = False
 old = (
     "namespace omnetpp { namespace scave {\n\n"
     "%template(EntryVector) ::std::vector<omnetpp::scave::OutputVectorEntry>;\n\n"
@@ -147,17 +143,21 @@ new = (
     "%ignore IndexedVectorFileWriterNode;"
 )
 
-if old in text:
+if new in text:
+    print("already_applied")
+elif old in text:
     text = text.replace(old, new, 1)
+    modified = True
 elif wrong in text:
     text = text.replace(wrong, new, 1)
+    modified = True
 else:
     raise SystemExit("expected_entryvector_block_not_found")
 
-path.write_text(text, encoding="utf-8")
+if modified:
+    path.write_text(text, encoding="utf-8")
 PY
-
-    append_summary "swig_patch.scave_entryvector=applied"
+    append_summary "swig_patch.scave_entryvector=checked"
 }
 
 if [[ -n "${swig_major_version}" ]] && [[ "${swig_major_version}" =~ ^[0-9]+$ ]] && (( swig_major_version >= 4 )); then

@@ -160,10 +160,38 @@ PY
     append_summary "swig_patch.scave_entryvector=checked"
 }
 
+patch_swig4_eventlog_intintmap() {
+    local target_file="${OMNETPP_DIR}/ui/org.omnetpp.ide.nativelibs/eventlog.i"
+
+    if [[ ! -f "${target_file}" ]]; then
+        stage_mark_failure "Expected SWIG interface file is missing: ${target_file}"
+    fi
+
+    python3 - "${target_file}" <<'PY'
+import pathlib
+import sys
+
+path = pathlib.Path(sys.argv[1])
+text = path.read_text(encoding="utf-8")
+old = "   specialize_std_map_on_both(int,,,,int,,,);\n"
+new = "   // SWIG 4.x: specialize_std_map_on_both is deprecated and may fail to parse on newer distros.\n"
+
+if new in text:
+    print("already_applied")
+elif old in text:
+    path.write_text(text.replace(old, new, 1), encoding="utf-8")
+else:
+    raise SystemExit("expected_eventlog_intintmap_macro_not_found")
+PY
+
+    append_summary "swig_patch.eventlog_intintmap=checked"
+}
+
 if [[ -n "${swig_major_version}" ]] && [[ "${swig_major_version}" =~ ^[0-9]+$ ]] && (( swig_major_version >= 4 )); then
     set_checkpoint "swig_compat" "patching deprecated SWIG std::map macro for SWIG 4.x"
     patch_swig4_scave_plove
     patch_swig4_scave_entryvector
+    patch_swig4_eventlog_intintmap
 fi
 
 IDE_STAGE_DIR="${OMNETPP_IDE_BUILD_BASE}/${RUN_TS}"

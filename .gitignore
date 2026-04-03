@@ -1,0 +1,17 @@
+.env.local
+.metadata/
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.swo
+activate_env.sh
+build/
+sources/
+third_party/
+omnetpp-5.5.1/
+inet/
+estnet/
+estnet-template/
+logs/
+state/

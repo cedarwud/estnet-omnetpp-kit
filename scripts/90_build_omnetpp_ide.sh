@@ -97,9 +97,73 @@ PY
     append_summary "swig_patch.scave_plove=applied"
 }
 
+patch_swig4_scave_entryvector() {
+    local target_file="${OMNETPP_DIR}/ui/org.omnetpp.ide.nativelibs/scave.i"
+    local marker_block='namespace omnetpp { namespace scave {
+
+%template(EntryVector) ::std::vector<omnetpp::scave::OutputVectorEntry>;
+
+%ignore IndexedVectorFileWriterNode;'
+    local replacement_block='namespace std {
+%template(EntryVector) ::std::vector<omnetpp::scave::OutputVectorEntry>;
+}
+
+namespace omnetpp { namespace scave {
+
+%ignore IndexedVectorFileWriterNode;'
+
+    if [[ ! -f "${target_file}" ]]; then
+        stage_mark_failure "Expected SWIG interface file is missing: ${target_file}"
+    fi
+
+    if grep -Fq 'namespace std {' "${target_file}" && grep -Fq '%template(EntryVector) ::std::vector<omnetpp::scave::OutputVectorEntry>;' "${target_file}"; then
+        append_summary "swig_patch.scave_entryvector=already_applied"
+        return 0
+    fi
+
+    python3 - "${target_file}" <<'PY'
+import pathlib
+import sys
+
+path = pathlib.Path(sys.argv[1])
+text = path.read_text(encoding="utf-8")
+old = (
+    "namespace omnetpp { namespace scave {\n\n"
+    "%template(EntryVector) ::std::vector<omnetpp::scave::OutputVectorEntry>;\n\n"
+    "%ignore IndexedVectorFileWriterNode;"
+)
+wrong = (
+    "namespace omnetpp { namespace scave {\n\n"
+    "namespace std {\n"
+    "%template(EntryVector) vector<omnetpp::scave::OutputVectorEntry>;\n"
+    "}\n\n"
+    "%ignore IndexedVectorFileWriterNode;"
+)
+new = (
+    "namespace std {\n"
+    "%template(EntryVector) ::std::vector<omnetpp::scave::OutputVectorEntry>;\n"
+    "}\n\n"
+    "namespace omnetpp { namespace scave {\n\n"
+    "%ignore IndexedVectorFileWriterNode;"
+)
+
+if old in text:
+    text = text.replace(old, new, 1)
+elif wrong in text:
+    text = text.replace(wrong, new, 1)
+else:
+    raise SystemExit("expected_entryvector_block_not_found")
+
+path.write_text(text, encoding="utf-8")
+PY
+
+    append_summary "swig_patch.scave_entryvector=applied"
+}
+
 if [[ -n "${swig_major_version}" ]] && [[ "${swig_major_version}" =~ ^[0-9]+$ ]] && (( swig_major_version >= 4 )); then
     set_checkpoint "swig_compat" "patching deprecated SWIG std::map macro for SWIG 4.x"
     patch_swig4_scave_plove
+    patch_swig4_scave_entryvector
 fi
 
 IDE_STAGE_DIR="${OMNETPP_IDE_BUILD_BASE}/${RUN_TS}"

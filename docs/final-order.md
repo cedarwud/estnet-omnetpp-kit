@@ -35,7 +35,7 @@ sudo apt-get install -y \
 - Ubuntu 20.04 / 22.04 的 FreeType development package 通常是 `libfreetype6-dev`
 - Ubuntu 24.04 可能改成 `libfreetype-dev`
 - `./setup.sh` 會依 apt cache 自動選擇；若你手動安裝 prerequisite packages，請先用 `./setup.sh --print-apt-command` 取得當前環境正確的套件名稱
-- `tools/run_stage.sh 90` 會在 `SWIG >= 4` 時自動套用 `scave-plove.i` 的相容修正，避免較新 Ubuntu/WSL 的 SWIG 解析失敗
+- `tools/run_stage.sh 90` 會在 `SWIG >= 4` 時自動套用 `scave-plove.i` 與 `scave.i` 的相容修正，避免較新 Ubuntu/WSL 的 SWIG 解析失敗
 
 ## Primary Entrypoints
 

@@ -205,6 +205,7 @@ cd /path/to/estnet-omnetpp-kit
 - maven / swig
 - Qt 開發套件
 - `libwebkit2gtk-4.0-37`
+- `xcursor-themes`
 - OpenGL / X11 開發套件
 - curl / gdal / geos / sqlite3 開發套件
 
@@ -212,6 +213,7 @@ cd /path/to/estnet-omnetpp-kit
 
 - `libwebkit2gtk-4.0-37` 是 IDE 內建 Browser widget 的 runtime dependency
 - 它不是 simulation / OSG / osgEarth build 的核心依賴，但加進 setup 比較穩
+- `xcursor-themes` 是 Eclipse/SWT 在 Linux/GTK 下建立 cursor 時的 runtime dependency；缺少時可能在 workspace chooser 就直接報 `SWTError: No more handles`
 - 若你已自行準備好系統套件，可用 `./setup.sh --skip-apt`
 
 ## Upstream Scripts After Setup

@@ -6,6 +6,51 @@ export PROJECT_ROOT
 source "${PROJECT_ROOT}/scripts/common.sh"
 GL_MODE="${OMNETPP_GL_MODE:-auto}"
 ENV_KIND="$(detect_runtime_environment)"
+GDK_MODE="${OMNETPP_GDK_BACKEND:-auto}"
+
+cursor_theme_has_hand2() {
+    local theme="${1:-}"
+    local base="/usr/share/icons"
+    [[ -n "${theme}" ]] || return 1
+    [[ -e "${base}/${theme}/cursors/hand2" ]] || return 1
+}
+
+select_cursor_theme_with_hand2() {
+    local current_theme=""
+    current_theme="${XCURSOR_THEME:-}"
+
+    if [[ -z "${current_theme}" ]] && command -v gsettings >/dev/null 2>&1; then
+        current_theme="$(gsettings get org.gnome.desktop.interface cursor-theme 2>/dev/null | tr -d "'" || true)"
+    fi
+
+    if cursor_theme_has_hand2 "${current_theme}"; then
+        return 0
+    fi
+
+    local fallback=""
+    for fallback in whiteglass redglass handhelds; do
+        if cursor_theme_has_hand2 "${fallback}"; then
+            export XCURSOR_THEME="${fallback}"
+            export XCURSOR_PATH="/usr/share/icons"
+            printf "[run] cursor_theme_fallback=%s\n" "${fallback}"
+            return 0
+        fi
+    done
+
+    return 1
+}
+
+has_argument() {
+    local needle="$1"
+    shift
+    local arg=""
+    for arg in "$@"; do
+        if [[ "${arg}" == "${needle}" ]]; then
+            return 0
+        fi
+    done
+    return 1
+}
 
 case "${1:-}" in
     --software-gl)
@@ -29,6 +74,14 @@ if [[ "${GL_MODE}" == "auto" ]]; then
     GL_MODE="$(default_gl_mode_for_environment)"
 fi
 
+if [[ "${GDK_MODE}" == "auto" ]]; then
+    if [[ "${ENV_KIND}" == "wsl" ]]; then
+        GDK_MODE="x11"
+    else
+        GDK_MODE=""
+    fi
+fi
+
 printf "[run] environment=%s distro=%s version=%s codename=%s virt=%s gl_mode=%s\n" \
     "${ENV_KIND}" \
     "$(linux_distro_id || true)" \
@@ -49,4 +102,19 @@ else
     unset GALLIUM_DRIVER
 fi
 
-exec omnetpp "$@"
+select_cursor_theme_with_hand2 || true
+
+if [[ -n "${GDK_MODE}" ]]; then
+    export GDK_BACKEND="${GDK_MODE}"
+    printf "[run] gdk_backend=%s\n" "${GDK_MODE}"
+fi
+
+declare -a OMNETPP_ARGS=()
+OMNETPP_ARGS=("$@")
+
+if ! has_argument "-data" "${OMNETPP_ARGS[@]}"; then
+    OMNETPP_ARGS+=("-data" "${PROJECT_ROOT}")
+    printf "[run] workspace=%s\n" "${PROJECT_ROOT}"
+fi
+
+exec omnetpp "${OMNETPP_ARGS[@]}"

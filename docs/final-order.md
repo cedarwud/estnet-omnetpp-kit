@@ -20,6 +20,7 @@ sudo apt-get install -y \
   maven swig \
   qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools libqt5opengl5-dev \
   libwebkit2gtk-4.0-37 \
+  xcursor-themes \
   libgl1-mesa-dev libglu1-mesa-dev \
   libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libxmu-dev \
   libjpeg-dev libpng-dev libtiff-dev libfreetype6-dev zlib1g-dev libfontconfig1-dev \

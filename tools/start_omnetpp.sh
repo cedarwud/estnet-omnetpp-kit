@@ -7,6 +7,28 @@ source "${PROJECT_ROOT}/scripts/common.sh"
 GL_MODE="${OMNETPP_GL_MODE:-auto}"
 ENV_KIND="$(detect_runtime_environment)"
 GDK_MODE="${OMNETPP_GDK_BACKEND:-auto}"
+QT_PLATFORM_MODE="${OMNETPP_QT_PLATFORM_MODE:-auto}"
+
+is_wayland_session() {
+    [[ "${XDG_SESSION_TYPE:-}" == "wayland" ]] || [[ -n "${WAYLAND_DISPLAY:-}" ]]
+}
+
+default_qt_platform_for_environment() {
+    local distro version
+    distro="$(linux_distro_id || true)"
+    version="$(linux_distro_version_id || true)"
+
+    if [[ "${ENV_KIND}" != "wsl" ]] && is_wayland_session && [[ "${distro}" == "ubuntu" ]]; then
+        case "${version}" in
+            24.*|25.*|26.*)
+                printf "xcb\n"
+                return 0
+                ;;
+        esac
+    fi
+
+    printf "\n"
+}
 
 cursor_theme_has_hand2() {
     local theme="${1:-}"
@@ -82,6 +104,10 @@ if [[ "${GDK_MODE}" == "auto" ]]; then
     fi
 fi
 
+if [[ "${QT_PLATFORM_MODE}" == "auto" ]] && [[ -z "${QT_QPA_PLATFORM:-}" ]]; then
+    QT_PLATFORM_MODE="$(default_qt_platform_for_environment)"
+fi
+
 printf "[run] environment=%s distro=%s version=%s codename=%s virt=%s gl_mode=%s\n" \
     "${ENV_KIND}" \
     "$(linux_distro_id || true)" \
@@ -107,6 +133,11 @@ select_cursor_theme_with_hand2 || true
 if [[ -n "${GDK_MODE}" ]]; then
     export GDK_BACKEND="${GDK_MODE}"
     printf "[run] gdk_backend=%s\n" "${GDK_MODE}"
+fi
+
+if [[ -n "${QT_PLATFORM_MODE}" ]]; then
+    export QT_QPA_PLATFORM="${QT_PLATFORM_MODE}"
+    printf "[run] qt_qpa_platform=%s\n" "${QT_PLATFORM_MODE}"
 fi
 
 declare -a OMNETPP_ARGS=()

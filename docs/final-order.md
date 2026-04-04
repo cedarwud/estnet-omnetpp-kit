@@ -61,7 +61,7 @@ cd /path/to/estnet-omnetpp-kit
 - `setup.sh` / `run.sh` 是主要對外入口
 - `tools/run_stage.sh`、`tools/run_all.sh`、`scripts/*.sh` 保留給 debug、局部重跑、問題定位，不是日常主入口
 - `./detect_env.sh` 可單獨列出目前判定到的環境、版本、virtualization 與預設 run/setup 策略
-- 在 native Ubuntu 24 的 Wayland session 下，`./run.sh` 會自動加上 `QT_QPA_PLATFORM=xcb`，減少 Qt/Wayland 警告
+- 在 native Linux / VMware / VirtualBox 的 Wayland session 下，`./run.sh` 會自動加上 `QT_QPA_PLATFORM=xcb`，減少 Qt/Wayland 警告
 - `omnetpp-5.5.1/configure`、`omnetpp-5.5.1/setenv`、`inet/setenv` 屬於 setup 後的 upstream 腳本，不是 portable kit 的主要對外入口
 
 ## Full Validation Order

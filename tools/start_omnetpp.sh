@@ -14,15 +14,16 @@ is_wayland_session() {
 }
 
 default_qt_platform_for_environment() {
-    local distro version
+    local distro
     distro="$(linux_distro_id || true)"
-    version="$(linux_distro_version_id || true)"
 
-    if [[ "${ENV_KIND}" != "wsl" ]] && is_wayland_session && [[ "${distro}" == "ubuntu" ]]; then
-        case "${version}" in
-            24.*|25.*|26.*)
-                printf "xcb\n"
-                return 0
+    if [[ "${ENV_KIND}" != "wsl" ]] && is_wayland_session; then
+        case "${ENV_KIND}" in
+            native-linux|vmware|virtualbox|virtualized)
+                if [[ -n "${distro}" ]]; then
+                    printf "xcb\n"
+                    return 0
+                fi
                 ;;
         esac
     fi

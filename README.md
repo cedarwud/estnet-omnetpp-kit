@@ -18,7 +18,7 @@ cd /path/to/estnet-omnetpp-kit
 
 - `./setup.sh` 會先偵測環境，再在 Ubuntu/WSL 內自動執行 `sudo apt-get install`
 - `./run.sh` 會先偵測環境，再自動決定預設 GL 模式與必要的 Qt backend workaround
-- 在 native Ubuntu 24 Wayland session 下，`./run.sh` 會自動切 `QT_QPA_PLATFORM=xcb`，避開 Qt/Wayland 的 `requestActivate()` / `QSocketNotifier` 警告
+- 在 native Linux / VMware / VirtualBox 的 Wayland session 下，`./run.sh` 會自動切 `QT_QPA_PLATFORM=xcb`，避開 Qt/Wayland 的 `requestActivate()` / `QSocketNotifier` 警告
 - 若只想看目前環境判斷結果，可執行 `./detect_env.sh`
 - 若目前 session 無法互動輸入 `sudo` 密碼，可先執行 `./setup.sh --print-apt-command`，手動安裝 prerequisite packages 後再執行 `./setup.sh --skip-apt`
 
@@ -166,7 +166,7 @@ cd /path/to/estnet-omnetpp-kit
 
 - 非 `WSL`
   - `run` 預設使用 native GL
-  - 若是 native Ubuntu 24 的 Wayland session，另會自動加上 `QT_QPA_PLATFORM=xcb`
+  - 若是 native Linux / VMware / VirtualBox 的 Wayland session，另會自動加上 `QT_QPA_PLATFORM=xcb`
 
 這代表：
 

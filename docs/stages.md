@@ -46,8 +46,9 @@
 - `run.sh`
   - 在 `WSL` 下預設使用 software GL
   - 在非 `WSL` 環境下預設使用 native GL
+  - 在 native Linux / VMware / VirtualBox 的 Wayland session 下，會額外自動套用 `QT_QPA_PLATFORM=xcb`
 
-Ubuntu 版本資訊目前先用於記錄與顯示，暫時不依 `20.04 / 22.04 / 24.04` 切換 build flags。
+Ubuntu 版本資訊目前會用於記錄、套件名稱選擇與相容性 workaround；runtime 啟動策略則優先依環境與 session 類型決定。
 
 ## Stage List
 
@@ -87,3 +88,4 @@ Ubuntu 版本資訊目前先用於記錄與顯示，暫時不依 `20.04 / 22.04 
 - Stage 90 是補 `omnetpp` Eclipse-based IDE payload 的獨立路線；它不改變前面 build/debug baseline 的成功與否，但若目標是實際執行 `omnetpp` launcher，就需要執行這一階段。
 - `setup.sh` 預設等同 `ready` flow：`00 10 20 30 40 50 60 70 80 90`
 - `run.sh` 會在啟動前依環境自動選擇 GL 策略；WSL 下預設 software GL
+- `run.sh` 會在 native Linux / VMware / VirtualBox 的 Wayland session 下自動加上 `QT_QPA_PLATFORM=xcb`

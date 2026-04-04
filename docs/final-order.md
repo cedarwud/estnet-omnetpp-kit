@@ -6,7 +6,7 @@
 
 ## One-Time Prerequisites
 
-`./setup.sh` 現在預設會先在 Ubuntu/WSL2 自動安裝必要系統套件。
+`./setup.sh` 現在預設會先在 Ubuntu 環境中自動安裝必要系統套件。
 若你想手動管理系統套件，再改用 `./setup.sh --skip-apt`。
 若目前 session 無法互動輸入 sudo 密碼，先執行 `./setup.sh --print-apt-command`，手動安裝 prerequisite packages 後再執行 `./setup.sh --skip-apt`。
 
@@ -21,6 +21,7 @@ sudo apt-get install -y \
   bison flex \
   maven swig \
   qtbase5-dev qtchooser qt5-qmake qtbase5-dev-tools libqt5opengl5-dev \
+  <webkit-runtime-package> \
   xcursor-themes \
   libgl1-mesa-dev libglu1-mesa-dev \
   libxrandr-dev libxinerama-dev libxcursor-dev libxi-dev libxmu-dev \

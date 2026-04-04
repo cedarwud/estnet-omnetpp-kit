@@ -2,7 +2,7 @@
 
 ## Goal
 
-在 `${PROJECT_ROOT}` 建立一套可重現、可分階段重跑、可保留 log 與 state 的 build/debug baseline，用來驗證下列組合在 `WSL2 Ubuntu 20.04` 的可建置性：
+在 `${PROJECT_ROOT}` 建立一套可重現、可分階段重跑、可保留 log 與 state 的 build/debug baseline，用來驗證下列組合。這套流程最初以 `WSL2 Ubuntu 20.04` 為 build/debug baseline 建立，現在也支援在 Ubuntu `20.04 / 22.04 / 24.04` 的 `WSL / VMware / VirtualBox / native Linux` 環境重跑 `setup.sh` 與 `run.sh`：
 
 - OMNeT++ 5.5.1
 - INET 4.2
@@ -52,8 +52,9 @@
 - `run.sh`
   - 在 `WSL` 下預設使用 software GL
   - 在非 `WSL` 環境下預設使用 native GL
+  - 在 native Linux / VMware / VirtualBox 的 Wayland session 下，會額外自動套用 `QT_QPA_PLATFORM=xcb`
 
-Ubuntu 版本資訊目前先作為偵測與記錄的一部分，暫時不依版本切換 build flags；若未來 `20.04 / 22.04 / 24.04` 需要不同策略，可直接擴充這一層判斷。
+Ubuntu 版本資訊目前會用於套件名稱選擇與少數相容性 workaround，例如 WebKitGTK、FreeType、Stage 90 的 Java/SWIG/Tycho；runtime 啟動策略則優先依環境與 session 類型決定。
 
 ## Required Configuration
 
